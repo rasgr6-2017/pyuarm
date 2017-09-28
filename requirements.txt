@@ -1,4 +1,0 @@
-colorama
-progressbar>=2.3
-pyserial>=3.0
-requests>=2.10.0

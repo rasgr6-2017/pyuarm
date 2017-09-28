@@ -1,36 +1,11 @@
-from distutils.util import convert_path
-from setuptools import setup, find_packages
+## ! DO NOT MANUALLY INVOKE THIS setup.py, USE CATKIN INSTEAD
 
-main_ns = {}
-ver_path = convert_path('pyuarm/version.py')
-with open(ver_path) as ver_file:
-        exec(ver_file.read(), main_ns)
+from distutils.core import setup
+from catkin_pkg.python_setup import generate_distutils_setup
 
-version = main_ns['__version__']
+# fetch values from package.xml
+setup_args = generate_distutils_setup(
+    packages=['ros_kth_uarm'],
+    package_dir={'': 'python'})
 
-long_description = open('README.rst').read()
-
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
-
-setup(name='pyuarm',
-    version=version,
-    author='Joey Song/Alex Tan',
-    packages=find_packages(),
-    entry_points={
-            'console_scripts': [
-                'uarm-firmware = pyuarm.tools.firmware_helper:main',
-                'uarm-calibrate = pyuarm.tools.calibrate:main',
-                'uarm-listport = pyuarm.tools.list_uarms:main',
-                'uarm-miniterm = pyuarm.tools.miniterm:main',
-            ]
-    },
-    package_data={'pyuarm.tools': ['avrdude/*']},
-    include_package_data=True,
-    author_email='developer@ufactory.cc',
-    url="https://github.com/uarm-developer/pyuarm",
-    keywords="pyuarm uarm4py uarmForPython uarm ufactory",
-    install_requires=requirements,
-    long_description=long_description,
-    description='A python library for uArm',
-)
+setup(**setup_args)
