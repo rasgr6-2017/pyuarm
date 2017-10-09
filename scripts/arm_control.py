@@ -11,9 +11,12 @@ eef_y=float(0)
 eef_z=float(0)
 
 # zero position for the joints
-j0_zero=float(38)
-j1_zero=float(130)
-j2_zero=float(-7)
+#j0_zero=float(38) # for NUC 16
+#j1_zero=float(130)
+#j2_zero=float(-7)
+j0_zero=float(28) # NUC 26
+j1_zero=float(95)
+j2_zero=float(-4)
 
 # reset arm to neutral position
 def resetPosition():
