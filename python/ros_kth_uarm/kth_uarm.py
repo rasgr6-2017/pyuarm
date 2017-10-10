@@ -26,13 +26,13 @@ class KTHUarm(object):
         be calibrated before usage. The calibration can be performed by either calling
         the calibrate function or by providing a calibration from a previous run."""
 
-    LOWER_LIMITS = [-55.0, -42.0, -24.0, -65.0]
-    UPPER_LIMITS = [106.0, 95.0, 90.0, 40.0]
+    LOWER_LIMITS = [-56.0, -40.0, -24.0, -65.0]
+    UPPER_LIMITS = [112.0, 97.0, 83.0, 40.0]
     J2_J1_MIN_LIMIT_OFFSET= 18.5
     J2_J1_MAX_LIMIT_OFFSET = 153.0
     NUM_JOINTS = 4
     JOINT_NAMES = ['j0', 'j1', 'j2', 'j3']
-    CALIBRATION_CONFIG = [45.0, 130.0, -4.83, 0.0]
+    CALIBRATION_CONFIG = [30.6, 97.0, -6.0, 0.0]
     DEFAULT_EXECUTION_SLEEP_TIME = 0.1
     MAXIMAL_NUM_INTERPOLATION_STEPS = 80.0
     NO_INTERPOLATION = 'None'
