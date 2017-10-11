@@ -60,13 +60,11 @@ def moveToClient(x, y, z, interpolate, seconds):
         print "MoveTo service call failed: %s"%e
 
 # move to joints service
-def moveToJointsClient(j0, j1, j2, interpolate, seconds):
+def moveToJointsClient(j0, j1, j2, j3, interpolate, seconds):
     rospy.wait_for_service('uarm/move_to_joints')
     try:
         move_to_joints = rospy.ServiceProxy('uarm/move_to_joints', MoveToJoints)
 
-        # Taken from the rqt_gui
-        j3=float(0)
         move_mode = int(0) # absolute
         interpolation_type = interpolate
         check_limits = bool(True)
@@ -142,13 +140,13 @@ def inverse_kinematics(x, y, z, check_limits=True):
     		theta1 = beta - psi # j1
 	
 		# Orientation of last link, phi, is the sum of all theta
-		phi = theta0 + theta1 + theta2
+		phi = theta0 + theta1 + theta2 # j3
 
 		# Convert to degrees and offset origin
 		theta0= theta0* (180/ math.pi) - start # j0
 		theta1=theta1 *( 180/ math.pi) - J_1_ZERO # j1
 		theta2=theta2* (180/ math.pi) - J_2_ZERO # j2
-		phi =phi* (180/ math.pi)
+		phi =phi* (180/ math.pi) # j3
 
 
 	return theta0,theta1,theta2, phi
@@ -165,7 +163,7 @@ if __name__ == "__main__":
     rospy.Subscriber("uarm/control", String, controlCallback) # grab, reset etc.
     j= inverse_kinematics(20, 10, 0)
     print j
-    r=moveToJointsClient(j[0], j[1],j[2], 0, 0)
+    r=moveToJointsClient(j[0], j[1],j[2], j[3], 0, 0)
     if r.error: print("limits error")
 rospy.spin()
     
