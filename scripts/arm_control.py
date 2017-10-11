@@ -126,31 +126,41 @@ def targetCallback(data):
 
 def inverse_kinematics(x, y, z, check_limits=True):
         L1=15
-        L2=23
-        
+        L2=16
+
+        # Goal has to be less than or equal to L1 + L2
+        L12 = L1 + L2
         sqrtxy2 = math.sqrt(x*x + y*y)
 
-		beta = math.atan2(y,x)
-		psi = math.acos((x*x + y*y + L1*L1 - L2*L2)/(2*L1*sqrtxy2))
+        if sqrtxy2 <= L12:
 
-		theta0 = beta # j0
+			beta = math.atan2(y,x)
+			psi = math.acos((x*x + y*y + L1*L1 - L2*L2)/(2*L1*sqrtxy2))
 
-		theta2 = math.acos((x*x + y*y + L1*L1 - L2*L2 )/(2*L1*L2)) # j2
+			theta0 = beta # j0
 
-		if theta2 < 0:
-			theta1 = beta + psi
-		else:
-			theta1 = beta - psi # j1
+			theta2 = math.acos((x*x + y*y + L1*L1 - L2*L2 )/(2*L1*L2)) # j2
+
+			if theta2 < 0:
+				theta1 = beta + psi
+			else:
+				theta1 = beta - psi # j1
 
 		# Orientation of last link, phi, is the sum of all theta
-		phi = theta0 + theta1 + theta2
+			phi = theta0 + theta1 + theta2
+
+		# Convert to degrees and offset origin
+			theta0=theta0* (180/ math.pi) - RESET_POS[0] # j0
+			theta1=theta1 *( 180/ math.pi) - J_1_ZERO # j1
+			theta2=theta2* (180/ math.pi) - J_2_ZERO # j2
+			phi =phi* (180/ math.pi)
+
+		else:
+			print "Goal out of range"
 
 	
 	# Convert to degrees and offset origin
-	theta0=theta0* (180/ math.pi) - RESET_POS[0] # j0
-	theta1=theta1 *( 180/ math.pi) - J_1_ZERO # j1
-	theta2=theta2* (180/ math.pi) - J_2_ZERO # j2
-	phi =phi* (180/ math.pi)
+
 
 
 	return theta0,theta1,theta2
