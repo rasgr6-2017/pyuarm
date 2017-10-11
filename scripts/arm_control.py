@@ -9,6 +9,8 @@ import math
 import ros_kth_uarm.kth_uarm as kth_uarm
 
 # get limits and calibration config from separate file
+# LOWER_LIMITS = [0.0, -4.9, -4.83, -65.0]
+# UPPER_LIMITS = [180.0, 130.0, 123.8, 40.0]
 LOWER_LIMITS= kth_uarm.KTHUarm.LOWER_LIMITS
 UPPER_LIMITS= kth_uarm.KTHUarm.UPPER_LIMITS
 RESET_POS= kth_uarm.KTHUarm.CALIBRATION_CONFIG
