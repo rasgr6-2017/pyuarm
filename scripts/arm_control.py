@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import rospy
 from geometry_msgs.msg import Point
@@ -109,19 +107,50 @@ def controlCallback(data):
 def targetCallback(data):
     rospy.loginfo("Target position: x: %f, y: %f, z: %f", data.x, data.y, data.z)
 
+# def inverse_kinematics(x, y, z, check_limits=True):
+#         L1=15
+#         L2=23
+# 	theta0=math.atan2(y,x) # j0
+#         sqrtxy = math.sqrt(x*x + y*y)
+#         theta2= math.pi - math.acos((x*x -y*y - L1*L1 + L2*L2 )/(2*L1*L2)) # j2
+#         print (x*x +y*y+L1*L1 -L2*L2 )/(2*L1*sqrtxy)
+#         theta1=math.acos((x*x +y*y+L1*L1 -L2*L2 )/(2*L1*math.sqrt(x*x+y*y))) - theta2 + math.pi/2 - math.atan2(y,x)
+	
+# 	#convert to degrees and offset origin
+# 	theta0=theta0* 180/ math.pi - RESET_POS[0] # j0
+# 	theta1=theta1 *( 180/ math.pi) - J_1_ZERO # j1
+# 	theta2=(theta2* 180/ math.pi) - J_2_ZERO # j2
+
+
+# 	return theta0,theta1,theta2
+
 def inverse_kinematics(x, y, z, check_limits=True):
         L1=15
         L2=23
-	theta0=math.atan2(y,x) # j0
-        sqrtxy = math.sqrt(x*x + y*y)
-        theta2= math.pi - math.acos((x*x -y*y - L1*L1 + L2*L2 )/(2*L1*L2)) # j2
-        print (x*x +y*y+L1*L1 -L2*L2 )/(2*L1*sqrtxy)
-        theta1=math.acos((x*x +y*y+L1*L1 -L2*L2 )/(2*L1*math.sqrt(x*x+y*y))) - theta2 + math.pi/2 - math.atan2(y,x)
+        
+        sqrtxy2 = math.sqrt(x*x + y*y)
+
+		beta = math.atan2(y,x)
+		psi = math.acos((x*x + y*y + L1*L1 - L2*L2)/(2*L1*sqrtxy2))
+
+		theta0 = beta # j0
+
+		theta2 = math.acos((x*x + y*y + L1*L1 - L2*L2 )/(2*L1*L2)) # j2
+
+		if theta2 < 0:
+			theta1 = beta + psi
+		else:
+			theta1 = beta - psi # j1
+
+		# Orientation of last link, phi, is the sum of all theta
+		phi = theta0 + theta1 + theta2
+
 	
-	#convert to degrees and offset origin
-	theta0=theta0* 180/ math.pi - RESET_POS[0] # j0
+	# Convert to degrees and offset origin
+	theta0=theta0* (180/ math.pi) - RESET_POS[0] # j0
 	theta1=theta1 *( 180/ math.pi) - J_1_ZERO # j1
-	theta2=(theta2* 180/ math.pi) - J_2_ZERO # j2
+	theta2=theta2* (180/ math.pi) - J_2_ZERO # j2
+	phi =phi* (180/ math.pi)
 
 
 	return theta0,theta1,theta2
@@ -141,9 +170,8 @@ if __name__ == "__main__":
     r=moveToJointsClient(j[0], j[1],j[2], 0, 0)
     if r.error: print("limits error")
     rospy.spin()
-    
-    
-    
-    
-    
-    
+
+
+
+
+
