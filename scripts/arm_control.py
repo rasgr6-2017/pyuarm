@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 import rospy
 from geometry_msgs.msg import Point
@@ -45,7 +47,7 @@ def moveToClient(x, y, z, interpolate, seconds):
         interpolation_type = interpolate
         check_limits = bool(True)
         
-        # Builtin duration type from ROS
+        # Built-in duration type from ROS
         # Duration(secs, nsecs) 
         d = rospy.Duration(seconds,0)
         movement_duration = d
@@ -125,45 +127,31 @@ def targetCallback(data):
 # 	return theta0,theta1,theta2
 
 def inverse_kinematics(x, y, z, check_limits=True):
-        L1=15
-        L2=16
-
-        # Goal has to be less than or equal to L1 + L2
-        L12 = L1 + L2
-        sqrtxy2 = math.sqrt(x*x + y*y)
-
-        if sqrtxy2 <= L12:
-
-			beta = math.atan2(y,x)
-			psi = math.acos((x*x + y*y + L1*L1 - L2*L2)/(2*L1*sqrtxy2))
-
-			theta0 = beta # j0
-
-			theta2 = math.acos((x*x + y*y + L1*L1 - L2*L2 )/(2*L1*L2)) # j2
-
-			if theta2 < 0:
-				theta1 = beta + psi
-			else:
-				theta1 = beta - psi # j1
-
+	L34 = L3 + L4
+	sqrtxy2 = math.sqrt(x*x + y*y)
+	
+	if sqrtxy2 <= L34:
+		beta = math.atan2(y,x)
+		psi = math.acos((x*x + y*y + L3*L3 - L4*L4)/(2*L3*sqrtxy2))
+		theta0 = beta # j0
+		start = L1 * math.pi * 2 * theta0
+		theta2 = math.acos((x*x + y*y + L3*L3 - L4*L4 )/(2*L3*L4)) # j2
+    	if theta2 < 0:
+    		theta1 = beta + psi
+    	else:
+    		theta1 = beta - psi # j1
+	
 		# Orientation of last link, phi, is the sum of all theta
-			phi = theta0 + theta1 + theta2
+		phi = theta0 + theta1 + theta2
 
 		# Convert to degrees and offset origin
-			theta0=theta0* (180/ math.pi) - RESET_POS[0] # j0
-			theta1=theta1 *( 180/ math.pi) - J_1_ZERO # j1
-			theta2=theta2* (180/ math.pi) - J_2_ZERO # j2
-			phi =phi* (180/ math.pi)
-
-		else:
-			print "Goal out of range"
-
-	
-	# Convert to degrees and offset origin
+		theta0= theta0* (180/ math.pi) - start # j0
+		theta1=theta1 *( 180/ math.pi) - J_1_ZERO # j1
+		theta2=theta2* (180/ math.pi) - J_2_ZERO # j2
+		phi =phi* (180/ math.pi)
 
 
-
-	return theta0,theta1,theta2
+	return theta0,theta1,theta2, phi
 
 if __name__ == "__main__":
     # interpolation: 1: cubic. 2: linear. 0: none (very accurate).
@@ -175,13 +163,12 @@ if __name__ == "__main__":
     rospy.init_node('arm_node', anonymous=True)
     rospy.Subscriber("uarm/target_position", Point, targetCallback) # get target position
     rospy.Subscriber("uarm/control", String, controlCallback) # grab, reset etc.
-    j= inverse_kinematics(1, 1, 0)
+    j= inverse_kinematics(20, 10, 0)
     print j
     r=moveToJointsClient(j[0], j[1],j[2], 0, 0)
     if r.error: print("limits error")
-    rospy.spin()
-
-
-
-
-
+rospy.spin()
+    
+    
+    
+    
