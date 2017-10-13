@@ -15,11 +15,12 @@ hit = False
 LOWER_LIMITS= kth_uarm.KTHUarm.LOWER_LIMITS
 UPPER_LIMITS= kth_uarm.KTHUarm.UPPER_LIMITS
 RESET_POS= kth_uarm.KTHUarm.CALIBRATION_CONFIG
-J_0_ZERO= -51.8
+J_0_ZERO= LOWER_LIMITS[0] # 90 degrees to the right
 #J_1_ZERO=  77.0 # zero angle for j1
 #J_2_ZERO= -32.0 # zero angle for j2
-J_1_ZERO= -30
-J_2_ZERO= -22.7
+#J_1_ZERO= -30
+J_1_ZERO= 2.5 # straight horisontal forward
+J_2_ZERO= -23.3 # horisontal straight 
 # LINKS
 L1 = 10.645
 L2 = 2.117
@@ -43,7 +44,7 @@ def resetPosition():
 
 
 # move to joints service
-def moveToJointsClient(j0, j1, j2, interpolate, seconds):
+def moveToJointsClient(j0, j1, j2, interpolate, seconds, move_mode=int(0)):
     rospy.wait_for_service('uarm/move_to_joints')
     try:
         move_to_joints = rospy.ServiceProxy('uarm/move_to_joints', MoveToJoints)
@@ -164,12 +165,13 @@ def inverse_kinematics(x, y, z):
     # theta0=0 + RESET_POS[0]
     return theta0, theta1, theta2
 
+
 if __name__ == "__main__":
 
     # interpolation: 1: cubic. 2: linear. 0: none (very accurate).
     # use 1 second for large movements
 
-    #resetPosition() # reset arm
+    resetPosition() # reset arm
     pumpClient(bool(False)) # disable pump
 
     rospy.init_node('arm_node', anonymous=True)
@@ -178,19 +180,19 @@ if __name__ == "__main__":
  
     rospy.Subscriber("uarm/control", String, controlCallback) # grab, reset etc.
     
-    target_x = 20
-    target_y = 0
-    target_z = -2
+    target_x = 12
+    target_y = -9
+    target_z = -10
     
+    # move above target, then pump, then down, then back
     j = inverse_kinematics(target_x, target_y, target_z)
-    # print j
-    
-    r = moveToJointsClient(j[0], j[1], j[2], 0 , 0)
-
-    #if r.error: print("limits error")
-    #r = moveToJointsClient(RESET_POS[0], j1, j2, 0 , 0) # move above
-    #if r.error: print("limits error")
-
+    r = moveToJointsClient(j[0], j[1], j[2], 2 , 1) # above target
+    pumpClient(bool(True)) # enable pump
+    rel = inverse_kinematics(target_x, target_y, (target_z-5)) # move down in z
+    r = moveToJointsClient(rel[0], rel[1],rel[2] , 0, 0) # movement down in z
+    resetPosition()
+    pumpClient(bool(False)) # disable pump
+  	
     """
     k = -1.2
     while (hit==False):
@@ -210,7 +212,7 @@ if __name__ == "__main__":
         if ( recieved == True):
             recieved = False
             print "sending command"
-            j = inverse_kinematics()
+            j = inverse_kinematics(target_x, target_y, target_z)
             r = moveToJointsClient(j[0], j[1], j[2], 0 , 0)
             print "sent and move"
             break
@@ -219,4 +221,5 @@ if __name__ == "__main__":
     
     print "Done"
     rospy.spin()
+    
 
