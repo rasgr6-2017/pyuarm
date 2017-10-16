@@ -17,7 +17,9 @@ import yaml
 import logging
 import time
 import numpy
-
+import os
+my_path = os.path.abspath(os.path.dirname(__file__))
+path = os.path.join(my_path, "../../scripts/calibration_values.txt")
 
 class KTHUarm(object):
     """ This class is a wrapper for the original pyuarm class.
@@ -25,14 +27,25 @@ class KTHUarm(object):
         to ease arm-camera coordination. Note that an instance of this class needs to
         be calibrated before usage. The calibration can be performed by either calling
         the calibrate function or by providing a calibration from a previous run."""
-
-    LOWER_LIMITS = [-56.0, -40.0, -24.0, -65.0]
-    UPPER_LIMITS = [112.0, 97.0, 83.0, 40.0]
+        
+    with open(path) as f:
+    	content = f.readlines()
+    content = [x.strip() for x in content]
+    
+    LOWER_LIMITS = [float(content[0]), float(content[3]), float(content[6]), -100.0]
+    UPPER_LIMITS = [float(content[1]), float(content[4]), float(content[7]), 100.0]
+    #LOWER_LIMITS = [-51.0, -41.0, -24.0, -65.0]
+    #UPPER_LIMITS = [116.0, 96.0, 88.0, 40.0]
+    #CALIBRATION_CONFIG = [40, 96.0, -7.0, 0.0]
+    CALIBRATION_CONFIG = [float(content[2]), UPPER_LIMITS[1], LOWER_LIMITS[2], 0.0]
+    J1_ZERO = float(content[2])
+    J2_ZERO = float(content[8])
+    print(LOWER_LIMITS)
+    
     J2_J1_MIN_LIMIT_OFFSET= 18.5
     J2_J1_MAX_LIMIT_OFFSET = 153.0
     NUM_JOINTS = 4
     JOINT_NAMES = ['j0', 'j1', 'j2', 'j3']
-    CALIBRATION_CONFIG = [30.6, 97.0, -6.0, 0.0]
     DEFAULT_EXECUTION_SLEEP_TIME = 0.1
     MAXIMAL_NUM_INTERPOLATION_STEPS = 80.0
     NO_INTERPOLATION = 'None'
