@@ -16,11 +16,8 @@ LOWER_LIMITS= kth_uarm.KTHUarm.LOWER_LIMITS
 UPPER_LIMITS= kth_uarm.KTHUarm.UPPER_LIMITS
 RESET_POS= kth_uarm.KTHUarm.CALIBRATION_CONFIG
 J_0_ZERO= LOWER_LIMITS[0] # 90 degrees to the right
-#J_1_ZERO=  77.0 # zero angle for j1
-#J_2_ZERO= -32.0 # zero angle for j2
-#J_1_ZERO= -30
-J_1_ZERO= 2.5 # straight horisontal forward
-J_2_ZERO= -23.3 # horisontal straight 
+J_1_ZERO = kth_uarm.KTHUarm.J1_ZERO # straight horisontal forward
+J_2_ZERO = kth_uarm.KTHUarm.J2_ZERO # horisontal straight 
 # LINKS
 L1 = 10.645
 L2 = 2.117
@@ -38,7 +35,18 @@ recieved = False
 # reset arm to neutral position
 def resetPosition():
     print "Arm position reset..."
-    resp= moveToJointsClient(RESET_POS[0], RESET_POS[1], RESET_POS[2], int(1), 1)
+    j1_reset=RESET_POS[1]
+    j2_reset=RESET_POS[2]
+    if (j1_reset<0):
+    	j1_reset +=0.1
+    else:
+   		j1_reset -=0.1
+    if (j2_reset<0):
+    	j2_reset +=0.1
+    else:
+    	j2_reset -=0.1
+    
+    resp= moveToJointsClient(RESET_POS[0], j1_reset, j2_reset, int(1), 1)
     if resp.error:
         print "Error, could not reset arm position. Check limits."
 
@@ -185,13 +193,13 @@ if __name__ == "__main__":
     target_z = -10
     
     # move above target, then pump, then down, then back
-    j = inverse_kinematics(target_x, target_y, target_z)
-    r = moveToJointsClient(j[0], j[1], j[2], 2 , 1) # above target
-    pumpClient(bool(True)) # enable pump
-    rel = inverse_kinematics(target_x, target_y, (target_z-5)) # move down in z
-    r = moveToJointsClient(rel[0], rel[1],rel[2] , 0, 0) # movement down in z
-    resetPosition()
-    pumpClient(bool(False)) # disable pump
+    #j = inverse_kinematics(target_x, target_y, target_z)
+    #r = moveToJointsClient(j[0], j[1], j[2], 2 , 1) # above target
+    #pumpClient(bool(True)) # enable pump
+    #rel = inverse_kinematics(target_x, target_y, (target_z-5)) # move down in z
+    #r = moveToJointsClient(rel[0], rel[1],rel[2] , 0, 0) # movement down in z
+    #resetPosition()
+    #pumpClient(bool(False)) # disable pump
   	
     """
     k = -1.2
