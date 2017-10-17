@@ -34,13 +34,15 @@ class KTHUarm(object):
     
     LOWER_LIMITS = [float(content[0]), float(content[3]), float(content[6]), -100.0]
     UPPER_LIMITS = [float(content[1]), float(content[4]), float(content[7]), 100.0]
+    print LOWER_LIMITS
+    print UPPER_LIMITS
     #LOWER_LIMITS = [-51.0, -41.0, -24.0, -65.0]
     #UPPER_LIMITS = [116.0, 96.0, 88.0, 40.0]
     #CALIBRATION_CONFIG = [40, 96.0, -7.0, 0.0]
     CALIBRATION_CONFIG = [float(content[2]), UPPER_LIMITS[1], LOWER_LIMITS[2], 0.0]
     J1_ZERO = float(content[2])
     J2_ZERO = float(content[8])
-    print(LOWER_LIMITS)
+    print(CALIBRATION_CONFIG)
     
     J2_J1_MIN_LIMIT_OFFSET= 18.5
     J2_J1_MAX_LIMIT_OFFSET = 153.0
